@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart BAUST Cover Page Pro</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body { font-family: 'Times New Roman', serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
+        .editor-container { max-width: 850px; margin: 0 auto 20px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #ddd; }
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .full-width { grid-column: span 2; }
+        label { font-weight: bold; font-size: 13px; color: #333; display: block; margin-top: 5px; }
+        input, select { width: 100%; padding: 8px; margin-top: 3px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
+        button { width: 100%; background: #006400; color: white; padding: 12px; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        
+        #cover-page {
+            width: 210mm;
+            height: 297mm;
+            background: white;
+            margin: 0 auto;
+            position: relative;
+            box-sizing: border-box;
+            padding: 10mm 20mm;
+            overflow: hidden;
+            color: black;
+        }
+
+        .header { text-align: center; margin-top: 5mm; }
+        .logo-box { height: 42mm; margin-bottom: 5mm; display: flex; justify-content: center; }
+        #preview-logo { height: 100%; max-width: 65mm; object-fit: contain; }
+        
+        .uni-name { font-size: 20pt; font-weight: bold; margin: 0; line-height: 1.2; width: 100%; }
+        /* Department Name - Single Line, Large and Bold */
+        .dept-name { 
+            font-size: 18pt; 
+            margin: 3mm 0; 
+            font-weight: bold; 
+            display: block; 
+            white-space: nowrap; 
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .report-title { 
+            text-align: center; margin: 10mm 0;
+            font-size: 32pt; font-weight: bold; text-decoration: underline; 
+            text-transform: uppercase;
+        }
+
+        .info-section { margin-left: 15mm; font-size: 16pt; line-height: 1.7; }
+        .info-row { display: flex; margin-bottom: 2mm; }
+        .label-cell { width: 65mm; }
+        .dots-cell { width: 10mm; font-weight: bold; }
+
+        .footer-area { position: absolute; bottom: 25mm; left: 20mm; right: 20mm; }
+        .footer-labels { display: flex; justify-content: space-between; margin-bottom: 3px; }
+        .footer-labels span { font-weight: bold; font-size: 15pt; text-decoration: underline; }
+        
+        .footer-table { width: 100%; border: 2pt solid black; display: flex; min-height: 38mm; }
+        .footer-col { width: 50%; padding: 4mm 5mm; font-size: 14pt; line-height: 1.4; }
+        .left-border { border-right: 2pt solid black; }
+
+        @media print { .editor-container { display: none; } }
+    </style>
+</head>
+<body>
+
+<div class="editor-container">
+    <h3 style="text-align: center; color: #006400; margin-top: 0;">BAUST Smart Cover Page -by farhan</h3>
+    <div class="input-grid">
+        <div class="full-width">
+            <label>Select Report Type:</label>
+            <select id="reportType" onchange="handleTypeChange()">
+                <option value="ASSIGNMENT">ASSIGNMENT</option>
+                <option value="LAB REPORT">LAB REPORT</option>
+                <option value="PROJECT REPORT">PROJECT REPORT</option>
+            </select>
+        </div>
+
+        <div class="full-width"><label>Upload Logo:</label><input type="file" id="logoInput"></div>
+        
+        <div class="full-width">
+            <label>University Name:</label>
+            <input type="text" id="inUni" value="Bangladesh Army University of Science and Technology, Khulna" oninput="update()">
+        </div>
+
+        <div class="full-width">
+            <label>Department (Header):</label>
+            <select id="inDept" onchange="update()">
+                <option value="Department of Computer Science & Engineering">Department of Computer Science & Engineering</option>
+                <option value="Department of Electrical & Electronic Engineering">Department of Electrical & Electronic Engineering</option>
+                <option value="Department of Civil Engineering">Department of Civil Engineering</option>
+                <option value="Department of Mechanical Engineering">Department of Mechanical Engineering</option>
+                <option value="Department of Business Administration">Department of Business Administration</option>
+                <option value="Department of English">Department of English</option>
+            </select>
+        </div>
+        
+        <input type="text" id="inCName" placeholder="Course Name" oninput="update()">
+        <input type="text" id="inCCode" placeholder="Course Code" oninput="update()">
+        <input type="text" id="inANo" placeholder="Number (e.g. 01)" oninput="update()">
+        <input type="text" id="inAName" placeholder="Topic Name" oninput="update()">
+        <input type="text" id="inDate1" placeholder="Date of Assignment/Experiment" oninput="update()">
+        <input type="text" id="inDate2" placeholder="Date of Submission" oninput="update()">
+        
+        <div>
+            <label>Submitted By (Student):</label>
+            <input type="text" id="inSN" placeholder="Name" oninput="update()">
+            <input type="text" id="inSI" placeholder="ID" oninput="update()">
+            <select id="inSD" onchange="update()">
+                <option value="">Student Dept</option>
+                <option value="CSE">CSE</option><option value="EEE">EEE</option>
+                <option value="CE">CE</option><option value="ME">ME</option>
+                <option value="BBA">BBA</option><option value="English">English</option>
+            </select>
+        </div>
+
+        <div>
+            <label>Submitted To (Teacher):</label>
+            <input type="text" id="inTN" placeholder="Teacher Name" oninput="update()">
+            <select id="inTDes" onchange="update()">
+                <option value="">Designation</option>
+                <option value="Lecturer">Lecturer</option>
+                <option value="Assistant Professor">Assistant Professor</option>
+                <option value="Associate Professor">Associate Professor</option>
+                <option value="Professor">Professor</option>
+            </select>
+            <select id="inTD" onchange="update()">
+                <option value="">Teacher Dept</option>
+                <option value="CSE">CSE</option><option value="EEE">EEE</option>
+                <option value="CE">CE</option><option value="ME">ME</option>
+                <option value="BBA">BBA</option><option value="English">English</option>
+            </select>
+        </div>
+    </div>
+    <button onclick="downloadPDF()">Download Single Page PDF</button>
+</div>
+
+<div id="cover-page">
+    <div class="header">
+        <div class="logo-box"><img id="preview-logo" src="" alt=" "></div>
+        <div class="uni-name" id="outUni"></div>
+        <div class="dept-name" id="outDept"></div>
+    </div>
+
+    <div class="report-title" id="outType">ASSIGNMENT</div>
+
+    <div class="info-section">
+        <div class="info-row"><div class="label-cell">Course Name</div><div class="dots-cell">:</div><div id="outCName"></div></div>
+        <div class="info-row"><div class="label-cell">Course Code</div><div class="dots-cell">:</div><div id="outCCode"></div></div>
+        <div class="info-row"><div class="label-cell" id="labelNo">Assignment no.</div><div class="dots-cell">:</div><div id="outANo"></div></div>
+        <div class="info-row"><div class="label-cell">Topic Name</div><div class="dots-cell">:</div><div id="outAName"></div></div>
+        <div style="height: 4mm;"></div>
+        <div class="info-row"><div class="label-cell" id="labelDate1">Date of Assignment</div><div class="dots-cell">:</div><div id="outDate1"></div></div>
+        <div class="info-row"><div class="label-cell">Date of Submission</div><div class="dots-cell">:</div><div id="outDate2"></div></div>
+    </div>
+
+    <div class="footer-area">
+        <div class="footer-labels"><span>Submitted By</span><span>Submitted To</span></div>
+        <div class="footer-table">
+            <div class="footer-col left-border">
+                Name : <span id="outSN"></span><br>
+                ID : <span id="outSI"></span><br>
+                Department of : <span id="outSD"></span>
+            </div>
+            <div class="footer-col">
+                Name : <span id="outTN"></span><br>
+                Designation : <span id="outTDes"></span><br>
+                Department of : <span id="outTD"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function handleTypeChange() {
+        const type = document.getElementById('reportType').value;
+        const outType = document.getElementById('outType');
+        const labelNo = document.getElementById('labelNo');
+        const labelDate1 = document.getElementById('labelDate1');
+
+        outType.innerText = type;
+
+        if (type === 'LAB REPORT') {
+            labelNo.innerText = 'Lab no.';
+            labelDate1.innerText = 'Date of Experiment';
+        } else if (type === 'PROJECT REPORT') {
+            labelNo.innerText = 'Project no.';
+            labelDate1.innerText = 'Date of Commencement';
+        } else {
+            labelNo.innerText = 'Assignment no.';
+            labelDate1.innerText = 'Date of Assignment';
+        }
+        update();
+    }
+
+    document.getElementById('logoInput').addEventListener('change', function(e) {
+        const reader = new FileReader();
+        reader.onload = () => document.getElementById('preview-logo').src = reader.result;
+        reader.readAsDataURL(e.target.files[0]);
+    });
+
+    function update() {
+        const map = {
+            'inUni':'outUni', 'inDept':'outDept', 'inCName':'outCName', 'inCCode':'outCCode',
+            'inANo':'outANo', 'inAName':'outAName', 'inDate1':'outDate1', 'inDate2':'outDate2',
+            'inSN':'outSN', 'inSI':'outSI', 'inSD':'outSD', 'inTN':'outTN', 'inTDes':'outTDes', 'inTD':'outTD'
+        };
+        for(let id in map) {
+            const el = document.getElementById(map[id]);
+            const input = document.getElementById(id);
+            if(el && input) el.innerText = input.value;
+        }
+    }
+
+    window.onload = update;
+
+    function downloadPDF() {
+        const element = document.getElementById('cover-page');
+        const opt = {
+            margin: 0,
+            filename: 'BAUST_Cover_Page.pdf',
+            image: { type: 'jpeg', quality: 1 },
+            html2canvas: { scale: 3, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        html2pdf().from(element).set(opt).toPdf().get('pdf').then(function (pdf) {
+            if (pdf.internal.getNumberOfPages() > 1) pdf.deletePage(2);
+        }).save();
+    }
+</script>
+</body>
+</html>
